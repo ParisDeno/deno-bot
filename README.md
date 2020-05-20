@@ -13,9 +13,9 @@ This bot was not tested in other environement. But should works as Amazon Lambda
 ###  `/task/fav_rt`
 Lambda to run manually or with a cron.  
 Will:
+- get user favorited statuses (200) `GET favorites/list.json?include_entities=false`
+- save `status.id_str`
 - get user timeline (100 items by default) `GET statuses/user_timeline.json?include_entities=false`
-- save latest `status.id_str`
-- save `status.id_str` with `favorited=true`
 - save `status.id_str` with `reteweeted_status` object (`retweeted_status.id_str`)
 - search `#denoland && #deno_land && #parisdeno` and like and retweet if not already favorited and retweeted
 - search `@deno_land && @ParisDeno` and like if not already favorited
@@ -42,6 +42,7 @@ Then go to "Keys and tokens" tab.
 - `DISCORD_WEBHOOK` - (Optional) http link to a discord webhook.
 
 ## Todo
+- [ ] add config for "famous" threshold
 - [ ] webhook
   - ignore my likes and retweets
   - retweet pings
