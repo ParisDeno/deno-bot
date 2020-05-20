@@ -101,18 +101,15 @@ export async function handler(
     false,
   );
 
-  logDiscord(
+  await logDiscord(
     `Webhook ended: 💙 = ${countFav} ; RT = ${countRT} ${
       dryRun ? "(dry run mode)" : ""
     }`,
   );
 
   const errors = twitter.getErrorList();
-  console.dir("ERRORS");
-  console.dir(errors);
   if (errors.length) {
-    const ed = await errorDiscord(errors);
-    console.dir(ed);
+    await errorDiscord(errors);
   }
 
   return {
