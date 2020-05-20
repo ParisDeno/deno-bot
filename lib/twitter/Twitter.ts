@@ -206,18 +206,41 @@ export class Client {
     return (timeline as TweetStatus[]) ?? [];
   }
 
+  public async listFavorites(count = this.count) {
+    const favs = await this.typedRequest<TweetSearchResult | TweetStatus[]>(
+      {
+        url: `/favorites/list.json?count=${count}&include_entities=false`,
+        method: "GET",
+      },
+    );
+
+    if ((favs as TweetSearchResult)?.statuses?.length) {
+      return (favs as TweetSearchResult).statuses;
+    }
+
+    return (favs as TweetStatus[]) ?? [];
+  }
+
   public async retweet(statusID: string) {
-    return this.typedRequest({
-      url: `/statuses/retweet/${statusID}.json?trim_user=true`,
-      method: "POST",
-    }, "2xx");
+    return this.typedRequest(
+      {
+        url: `/statuses/retweet/${statusID}.json?trim_user=true`,
+        method: "POST",
+      },
+      "2xx",
+      [403],
+    );
   }
 
   public async favorite(statusID: string) {
-    return this.typedRequest({
-      url: `/favorites/create.json?id=${statusID}&include_entities=false`,
-      method: "POST",
-    }, 200);
+    return this.typedRequest(
+      {
+        url: `/favorites/create.json?id=${statusID}&include_entities=false`,
+        method: "POST",
+      },
+      200,
+      [403],
+    );
   }
 
   public request(
@@ -273,10 +296,12 @@ export class Client {
   public async typedRequest(
     reqOpts: OAuth.RequestOptions & { headers?: Record<string, string> },
     expectedStatus: number | "2xx",
+    ignoreStatus?: number[],
   ): Promise<boolean>;
   public async typedRequest(
     reqOpts: OAuth.RequestOptions & { headers?: Record<string, string> },
     expectedStatus?: number | "2xx",
+    ignoreStatus?: number[],
   ): Promise<any> {
     const resp = await this.request(reqOpts);
 
@@ -287,6 +312,10 @@ export class Client {
       }
 
       if (resp.status === expectedStatus) {
+        return true;
+      }
+
+      if (ignoreStatus && ignoreStatus.includes(resp.status)) {
         return true;
       }
 
