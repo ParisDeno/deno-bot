@@ -181,7 +181,7 @@ export class Client {
     const search = termBuilder(new SearchBuilder());
     const result = await this.typedRequest<TweetSearchResult>({
       url:
-        `/search/tweets.json?qQ=${search}&result_type=${result_type}&count=${count}`,
+        `/search/tweets.json?q=${search}&result_type=${result_type}&count=${count}`,
       method: "GET",
     });
 
