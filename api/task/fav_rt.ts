@@ -1,9 +1,3 @@
-//TODO:
-// webhook
-// ignore my likes and retweets
-// retweet pings
-// auto reply DM with "Sorry I'm only a bot"
-
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
