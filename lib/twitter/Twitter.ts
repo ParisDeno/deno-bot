@@ -64,6 +64,7 @@ export class Client {
   private static INSTANCE: Client;
 
   private errorList: ErrorEntry[] = [];
+  private warnList: string[] = [];
 
   private constructor() {
     this.validateEnv();
@@ -316,6 +317,9 @@ export class Client {
       }
 
       if (ignoreStatus && ignoreStatus.includes(resp.status)) {
+        this.warnList.push(
+          `${resp.status} on request ${reqOpts.url}. (${await resp.text()})`,
+        );
         return true;
       }
 
@@ -358,5 +362,9 @@ export class Client {
 
   public getErrorList() {
     return [...this.errorList] as const;
+  }
+
+  public getWarnList() {
+    return [...this.warnList] as const;
   }
 }

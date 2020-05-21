@@ -7,11 +7,12 @@ export async function favRT(dryRun: boolean, famous: boolean) {
   const alreadyFavorited = (await twitter.listFavorites(200)).map(
     (fav) => fav.id_str,
   );
-  const alreadyRetweeted = (await twitter.getTimeline()).filter((status) =>
-    status.retweeted
-  ).map(
-    (rt) => rt.retweeted_status!.id_str,
-  );
+  const alreadyRetweeted = (await twitter.getTimeline(void 0, 200)).filter((
+    status,
+  ) => status.retweeted)
+    .flatMap(
+      (rt) => [rt.id_str, rt.retweeted_status!.id_str],
+    );
 
   let countFav = 0, countRT = 0;
   const favAndRT = async (statuses: TweetStatus[], fav = true, rt = true) => {
@@ -29,7 +30,7 @@ export async function favRT(dryRun: boolean, famous: boolean) {
         }
         countFav++;
         alreadyFavorited.push(status.id_str);
-      } else dryRun && console.info(`> FAV skipped ${status.id_str}`);
+      }
 
       if (rt && !alreadyRetweeted.includes(status.id_str)) {
         if (dryRun) {
@@ -43,7 +44,7 @@ export async function favRT(dryRun: boolean, famous: boolean) {
         }
         countRT++;
         alreadyRetweeted.push(status.id_str);
-      } else dryRun && console.info(`> RT skipped ${status.id_str}`);
+      }
     }
 
     await Promise.allSettled(p);
@@ -55,12 +56,15 @@ export async function favRT(dryRun: boolean, famous: boolean) {
         "replies",
       ).inc.lang("fr", "en");
 
-  const searchHashtags = await twitter.search((sb) =>
-    strictSearch(sb.inc.subject("#denoland", "#deno_land", "#parisdeno"))
-      .toString()
+  const searchHashtags = await twitter.search(
+    (sb) =>
+      strictSearch(sb.inc.subject("#denoland", "#deno_land", "#parisdeno"))
+        .toString(),
+    famous ? "recent" : "mixed",
   );
-  const searchUsers = await twitter.search((sb) =>
-    strictSearch(sb.inc.subject("@deno_land", "@ParisDeno")).toString()
+  const searchUsers = await twitter.search(
+    (sb) => strictSearch(sb.inc.subject("@deno_land", "@ParisDeno")).toString(),
+    famous ? "recent" : "mixed",
   );
 
   const filterFamous = (s: TweetStatus) =>
@@ -75,9 +79,10 @@ export async function favRT(dryRun: boolean, famous: boolean) {
     false,
   );
 
+  const warns = twitter.getWarnList().length;
   await logDiscord(
-    `Webhook ended: 💙 = ${countFav} ; RT = ${countRT} ${
-      dryRun ? "(dry run mode)" : ""
+    `💙 = ${countFav} ; 🔀 = ${countRT}${warns ? ` ; ⚠️ = ${warns}` : ""}${
+      dryRun ? " (dry run mode)" : ""
     }`,
   );
 

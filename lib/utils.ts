@@ -56,7 +56,7 @@ export async function errorDiscord(data: any) {
   const body = new FormData();
   const strData = JSON.stringify(data);
   if (strData.length > 1000) {
-    body.set("content", ":warning: deno-bot execution **failed**!");
+    body.set("content", "⚠️ deno-bot execution **failed**!");
     body.set(
       "file",
       new Blob([strData], { type: "application/json" }),
@@ -65,7 +65,7 @@ export async function errorDiscord(data: any) {
   } else {
     body.set(
       "content",
-      `:warning: deno-bot execution **failed**!\n\n\`\`\`json\n${strData}\n\`\`\``,
+      `⚠️ deno-bot execution **failed**!\n\n\`\`\`json\n${strData}\n\`\`\``,
     );
   }
 
